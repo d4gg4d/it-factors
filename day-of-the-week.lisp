@@ -1,3 +1,9 @@
+;; Idea for this algorithm comes from blog post where 
+;; one can memoize rules which can be used to calculate given date 
+;; to weekday in ones memory.
+;; 
+;; ref: https://litemind.com/how-to-become-a-human-calendar/
+;;
 (defpackage :org.d4gg4d.day-of-the-week
   (:use :common-lisp))
 
@@ -7,10 +13,14 @@
     (apply f (append args more-args))))
 
 (defun -put-entry-to (hash-table key value)
+  "set entry set to hash table"
   (setf (gethash key hash-table) value))
 
 (defun put-entry-to (hash-table key-value)
   (-put-entry-to hash-table (car key-value) (cadr key-value)))
+
+(defun last-two-digits (year)
+  (nth-value 1 (truncate year 100)))
 
 (defvar month-to-code)
 (setq month-to-code (make-hash-table))
@@ -40,19 +50,16 @@
 (defun century-code (century)
   (- 6 (* 2 (mod century 4))))
 
-(defun last-two-digits (year)
-  (nth-value 1 (truncate year 100)))
-
 (defun resolve-year-code (year)
   (let ((century-value (century-code (floor (/ year 100))))
 	(last-digits (last-two-digits year)))
     (mod (+ century-value last-digits (floor (/ last-digits 4))) 7)))
 
-(defun fetch-month-code (month)
-  (gethash month month-to-code))
-
 (defun resolve-leap-year-code (year month)
   (if (and (= 0 (mod year 4)) (> 3 month)) -1 0))
+
+(defun fetch-month-code (month)
+  (gethash month month-to-code))
 
 (defun resolve-day-code (year-code leap-year-code month-code day)
   (mod (+ year-code leap-year-code month-code day) 7))
