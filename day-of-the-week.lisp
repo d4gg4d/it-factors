@@ -4,6 +4,7 @@
 ;; 
 ;; ref: https://litemind.com/how-to-become-a-human-calendar/
 ;;
+
 (defpackage :org.d4gg4d.day-of-the-week
   (:use :common-lisp))
 
@@ -51,12 +52,13 @@
   (- 6 (* 2 (mod century 4))))
 
 (defun resolve-year-code (year)
-  (let ((century-value (century-code (floor (/ year 100))))
-	(last-digits (last-two-digits year)))
-    (mod (+ century-value last-digits (floor (/ last-digits 4))) 7)))
+  (let* ((century-value (century-code (floor year 100)))
+	 (last-digits (last-two-digits year))
+	 (digits-division-value (floor last-digits 4)))
+    (mod (+ century-value last-digits digits-division-value) 7)))
 
 (defun resolve-leap-year-code (year month)
-  (if (and (= 0 (mod year 4)) (> 3 month)) -1 0))
+  (if (and (zerop (mod year 4)) (> 3 month)) -1 0))
 
 (defun fetch-month-code (month)
   (gethash month month-to-code))
